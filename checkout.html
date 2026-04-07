@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Checkout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  padding: 40px;
+}
+
+.container {
+  max-width: 650px;
+  background: white;
+  padding: 30px;
+  margin: auto;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin: 20px 0 10px;
+  font-size: 18px;
+}
+
+.order-box {
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.order-item {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.total {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1ebe5b;
+}
+
+.error {
+  border: 2px solid red;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🧾 Checkout</h1>
+
+  <h2>Ringkasan Pesanan</h2>
+  <div class="order-box" id="ringkasan"></div>
+
+  <h2>Data Pembeli</h2>
+  <input type="text" id="nama" placeholder="Nama Lengkap" required>
+  <input type="text" id="alamat" placeholder="Alamat Lengkap" required>
+  <input type="tel" id="hp" placeholder="No WhatsApp" required>
+  <textarea id="catatan" placeholder="Catatan (opsional)"></textarea>
+
+ <button onclick="selesai()">Pesan Sekarang</button>
+
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let ringkasan = document.getElementById("ringkasan");
+let total = 0;
+
+// tampilkan ringkasan pesanan
+cart.forEach(item => {
+  let subtotal = item.harga * item.qty;
+  total += subtotal;
+
+  ringkasan.innerHTML += `
+    <div class="order-item">
+      • ${item.nama} (${item.ukuran}) x${item.qty}
+      <br>Rp ${subtotal.toLocaleString()}
+    </div>
+  `;
+});
+
+ringkasan.innerHTML += `
+  <div class="total">Total: Rp ${total.toLocaleString()}</div>
+`;
+
+
+function selesai() {
+  let nama = document.getElementById("nama").value;
+  let alamat = document.getElementById("alamat").value;
+  let hp = document.getElementById("hp").value;
+  let catatan = document.getElementById("catatan").value;
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if (!nama || !alamat || !hp || cart.length === 0) {
+    alert("Lengkapi data dan pastikan keranjang tidak kosong ya 😊");
+    return;
+  }
+
+  let pesan = `Halo Vrylia Batik 👋%0A%0A`;
+  pesan += `Nama: ${nama}%0A`;
+  pesan += `Alamat: ${alamat}%0A`;
+  pesan += `No HP: ${hp}%0A%0A`;
+  pesan += `🛍️ Pesanan:%0A`;
+
+  cart.forEach((item, i) => {
+    pesan += `${i+1}. ${item.nama} (${item.ukuran}) x${item.qty}%0A`;
+  });
+
+  pesan += `%0ACatatan: ${catatan || "-"}%0A`;
+  pesan += `%0A----------------------%0A`;
+  pesan += `%0ATerima kasih 🙏`;
+
+  let nomorWA = "6285727507611";
+  let url = `https://wa.me/${nomorWA}?text=${pesan}`;
+
+  alert("Pesanan akan diarahkan ke WhatsApp 😊");
+
+  window.open(url, "_blank");
+
+  // hapus cart setelah klik
+  localStorage.removeItem("cart");
+}
+
+</script>
+

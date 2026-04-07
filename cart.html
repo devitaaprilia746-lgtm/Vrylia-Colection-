@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Keranjang Belanja</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  padding: 30px;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.cart-item {
+  display: flex;
+  gap: 15px;
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.cart-item img {
+  width: 90px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.info {
+  flex: 1;
+}
+
+.qty {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.qty button {
+  padding: 4px 10px;
+}
+
+.btn-hapus {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.total {
+  text-align: right;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.checkout {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  background: #5a3e2b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.checkout-btn {
+  margin-top: 25px;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #5a3e2b, #8b5e3c);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.checkout-btn:hover {
+  background: linear-gradient(135deg, #4a3223, #7a4f32);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+/* Klik effect */
+.checkout-btn:active {
+  transform: scale(0.98);
+}
+
+/* Kalau disabled */
+.checkout-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Keranjang Belanja</h1>
+  <div id="cartList"></div>
+
+  <div class="total">
+    Total: <b id="totalHarga">Rp 0</b>
+  </div>
+
+<button class="checkout-btn" onclick="keCheckout()">
+  🛍️ Lanjut ke Checkout
+</button>
+
+</div>
+<script>
+function keCheckout() {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if (cart.length === 0) {
+    alert("Keranjang masih kosong 😊");
+
+    return;
+  }
+
+  window.location.href = "checkout.html";
+}
+</script>
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function renderCart() {
+  let list = document.getElementById("cartList");
+  let total = 0;
+  list.innerHTML = "";
+
+  if (cart.length === 0) {
+    list.innerHTML = "<p>Keranjang kosong 😢</p>";
+    return;
+  }
+
+  cart.forEach((item, i) => {
+    let sub = item.harga * item.qty;
+    total += sub;
+
+    list.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.foto}">
+        <div class="info">
+          <h4>${item.nama}</h4>
+          <p>Ukuran: ${item.ukuran}</p>
+
+          <div class="qty">
+            <button onclick="ubahQty(${i},-1)">−</button>
+            <span>${item.qty}</span>
+            <button onclick="ubahQty(${i},1)">+</button>
+          </div>
+
+          <p>Rp ${sub.toLocaleString()}</p>
+
+          <button class="btn-hapus" onclick="hapusItem(${i})">
+            🗑 Hapus
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("totalHarga").innerText =
+    "Rp " + total.toLocaleString();
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function ubahQty(i, n) {
+  cart[i].qty += n;
+  if (cart[i].qty <= 0) cart.splice(i, 1);
+  renderCart();
+}
+
+function hapusItem(i) {
+  if (confirm("Hapus produk ini?")) {
+    cart.splice(i, 1);
+    renderCart();
+  }
+}
+
+function checkout() {
+  if (cart.length === 0) {
+    alert("Keranjang masih kosong");
+    return;
+  }
+
+  let pesan = "Halo, saya ingin pesan:%0A%0A";
+  let total = 0;
+
+  cart.forEach(item => {
+    let sub = item.harga * item.qty;
+    total += sub;
+    pesan += `• ${item.nama} (${item.ukuran}) x${item.qty} = Rp ${sub.toLocaleString()}%0A`;
+  });
+
+  pesan += `%0A*Total: Rp ${total.toLocaleString()}*`;
+}
+renderCart();
+</script>
+
+</body>
+</html>
